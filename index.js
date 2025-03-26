@@ -1,11 +1,14 @@
 const express = require('express')
 require('dotenv').config()
+const cors = require('cors')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const app = express()
 const port = 3000
 
- //  
+ //  middleware
+ app.use(cors())
+ app.use(express.json())
 
 
  
@@ -21,8 +24,20 @@ const client = new MongoClient(uri, {
 async function bootstrap() {
   try {
     await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    const database = client.db("online-embassy-one")
+    const UsersCollection = database.collection("Users")
+
+      app.post('/users', async (req, res) => {
+        const user = req.body;
+        const result = await UsersCollection.insertOne(user)
+        res.send(result)
+        
+
+      })
+
+
+
+    
   } finally {
 //    await client.close();
   }
